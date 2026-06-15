@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body { background: #eeeef4; min-height: 100vh; }
+    .navbar { background: linear-gradient(90deg, #2c3e50, #34495e); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { color: #fff; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .dashboard { padding: 24px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-box { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); text-align: center; }
+    .stat-box .num { font-size: 32px; font-weight: 700; color: #6B7FD7; }
+    .stat-box .lbl { font-size: 13px; color: #999; margin-top: 4px; }
+    .section { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .section-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 13px; font-weight: 600; color: #555; padding: 10px 14px; text-align: left; background: #f5f5f5; border-bottom: 1px solid #eee; }
+    td { font-size: 13px; color: #333; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; }
+    tr:last-child td { border-bottom: none; }
+    .empty { text-align: center; color: #aaa; padding: 24px; font-size: 13px; }
+    .risk-badge { display: inline-block; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+    .risk-low { background: #27ae60; }
+    .risk-medium { background: #e67e22; }
+    .risk-high { background: #e74c3c; }
+    .refresh-btn { background: #6B7FD7; border: none; border-radius: 20px; color: #fff; padding: 7px 18px; font-size: 13px; cursor: pointer; }
+    .logout-btn { background: #e74c3c; border: none; border-radius: 20px; color: #fff; padding: 7px 18px; font-size: 13px; cursor: pointer; }
+    .export-btn { background: #27ae60; border: none; border-radius: 20px; color: #fff; padding: 6px 16px; font-size: 12px; cursor: pointer; }
+    .delete-btn { background: #fff; border: 1.5px solid #e74c3c; border-radius: 20px; color: #e74c3c; font-size: 11px; padding: 3px 10px; cursor: pointer; }
+    .admin-login { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #2c3e50, #34495e); }
+    .login-card { background: #fff; border-radius: 14px; padding: 32px; width: 100%; max-width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
+    .login-card h2 { font-size: 20px; font-weight: 600; color: #222; margin-bottom: 4px; text-align: center; }
+    .login-card p { font-size: 13px; color: #999; text-align: center; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 500; }
+    .field input { width: 100%; padding: 10px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+    .field input:focus { border-color: #6B7FD7; }
+    .login-btn { width: 100%; padding: 11px; background: #2c3e50; border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 4px; }
+    .err-msg { color: #e74c3c; font-size: 13px; text-align: center; margin-top: 8px; }
+    #adminPanel { display: none; }
+    #loginPanel { display: flex; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .search-box { width: 100%; padding: 8px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 14px; }
+    .search-box:focus { border-color: #6B7FD7; }
+    .bar-wrap { margin-bottom: 10px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #555; margin-bottom: 4px; }
+    .bar-bg { background: #f0f0f0; border-radius: 6px; height: 10px; }
+    .bar-fill { height: 10px; border-radius: 6px; background: linear-gradient(90deg, #6B7FD7, #9B6BB5); transition: width 0.5s; }
+    .risk-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .risk-row:last-child { border-bottom: none; }
+    .risk-count { font-size: 20px; font-weight: 700; }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-btn { background: #f0f0f0; border: none; border-radius: 20px; padding: 5px 14px; font-size: 12px; cursor: pointer; color: #555; }
+    .filter-btn.active { background: #6B7FD7; color: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN PANEL -->
+<div id="loginPanel" class="admin-login">
+  <div class="login-card">
+    <div style="text-align:center;font-size:36px;margin-bottom:12px;">🔐</div>
+    <h2>Admin Panel</h2>
+    <p>Enter admin credentials to continue</p>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="adminUser" placeholder="Enter admin username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="adminPass" placeholder="Enter admin password" />
+    </div>
+    <button class="login-btn" onclick="adminLogin()">Login</button>
+    <div class="err-msg" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="navbar">
+    <div class="nav-brand">
+      🛡️ Skin Disease Prediction — Admin Panel
+    </div>
+    <div class="nav-right">
+      <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="dashboard">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="num" id="totalUsers">0</div>
+        <div class="lbl">Total Users</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="totalPredictions">0</div>
+        <div class="lbl">Total Predictions</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="highRiskCount">0</div>
+        <div class="lbl" style="color:#e74c3c;">High Risk Cases</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="todayCount">0</div>
+        <div class="lbl">Today's Predictions</div>
+      </div>
+    </div>
+
+    <!-- Two column section -->
+    <div class="two-col">
+
+      <!-- Most Predicted Disease -->
+      <div class="section">
+        <div class="section-title">📊 Most Predicted Diseases</div>
+        <div id="diseaseChart">
+          <p style="color:#aaa;font-size:13px;text-align:center;padding:20px;">No data yet</p>
+        </div>
+      </div>
+
+      <!-- Risk Summary -->
+      <div class="section">
+        <div class="section-title">⚠️ Risk Level Summary</div>
+        <div class="risk-row">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#e74c3c;">🔴 High Risk</div>
+            <div style="font-size:12px;color:#999;">Melanoma cases</div>
+          </div>
+          <div class="risk-count" style="color:#e74c3c;" id="riskHigh">0</div>
+        </div>
+        <div class="risk-row">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#e67e22;">🟠 Medium Risk</div>
+            <div style="font-size:12px;color:#999;">BCC & Actinic cases</div>
+          </div>
+          <div class="risk-count" style="color:#e67e22;" id="riskMedium">0</div>
+        </div>
+        <div class="risk-row">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#27ae60;">🟢 Low Risk</div>
+            <div style="font-size:12px;color:#999;">Benign cases</div>
+          </div>
+          <div class="risk-count" style="color:#27ae60;" id="riskLow">0</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Users Table -->
+    <div class="section">
+      <div class="section-title">
+        <span>👥 Registered Users</span>
+        <button class="export-btn" onclick="exportUsers()">⬇️ Export CSV</button>
+      </div>
+      <input type="text" class="search-box" placeholder="🔍 Search by name or email..." oninput="searchUsers(this.value)" />
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="4" class="empty">No users yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Predictions Table -->
+    <div class="section">
+      <div class="section-title">
+        <span>🔬 All Predictions</span>
+        <button class="export-btn" onclick="exportPredictions()">⬇️ Export CSV</button>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterPreds('All', this)">All</button>
+        <button class="filter-btn" onclick="filterPreds('High', this)">🔴 High Risk</button>
+        <button class="filter-btn" onclick="filterPreds('Medium', this)">🟠 Medium Risk</button>
+        <button class="filter-btn" onclick="filterPreds('Low', this)">🟢 Low Risk</button>
+      </div>
+
+      <input type="text" class="search-box" placeholder="🔍 Search by diagnosis..." oninput="searchPreds(this.value)" />
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Diagnosis</th>
+            <th>Confidence</th>
+            <th>Risk</th>
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="predsBody">
+          <tr><td colspan="6" class="empty">No predictions yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const ADMIN_USER = 'admin';
+  const ADMIN_PASS = 'admin123';
+
+  let allUsers       = [];
+  let allPredictions = [];
+  let currentFilter  = 'All';
+
+  function adminLogin() {
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPass').value;
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      document.getElementById('loginPanel').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadData();
+    } else {
+      document.getElementById('loginErr').textContent = '❌ Invalid username or password!';
+    }
+  }
+
+  function adminLogout() {
+    document.getElementById('loginPanel').style.display = 'flex';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminUser').value          = '';
+    document.getElementById('adminPass').value          = '';
+    document.getElementById('loginErr').textContent     = '';
+  }
+
+  async function loadData() {
+    try {
+      const res  = await fetch('/admin/data');
+      const data = await res.json();
+
+      allUsers       = data.users;
+      allPredictions = data.predictions;
+
+      // Stats
+      document.getElementById('totalUsers').textContent       = data.total_users;
+      document.getElementById('totalPredictions').textContent = data.total_predictions;
+
+      // Risk counts
+      const high   = data.predictions.filter(p => p.risk === 'High').length;
+      const medium = data.predictions.filter(p => p.risk === 'Medium').length;
+      const low    = data.predictions.filter(p => p.risk === 'Low').length;
+      document.getElementById('highRiskCount').textContent = high;
+      document.getElementById('riskHigh').textContent      = high;
+      document.getElementById('riskMedium').textContent    = medium;
+      document.getElementById('riskLow').textContent       = low;
+
+      // Today's predictions
+      const today      = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const todayPreds = data.predictions.filter(p => p.date === today).length;
+      document.getElementById('todayCount').textContent = todayPreds;
+
+      // Disease chart
+      renderDiseaseChart(data.predictions);
+
+      // Tables
+      renderUsers(allUsers);
+      renderPredictions(allPredictions);
+
+    } catch (err) {
+      alert('Error loading data. Make sure Flask is running!');
+    }
+  }
+
+  function renderDiseaseChart(predictions) {
+    const container = document.getElementById('diseaseChart');
+    if (predictions.length === 0) {
+      container.innerHTML = '<p style="color:#aaa;font-size:13px;text-align:center;padding:20px;">No data yet</p>';
+      return;
+    }
+
+    // Count each disease
+    const counts = {};
+    predictions.forEach(p => {
+      counts[p.diagnosis] = (counts[p.diagnosis] || 0) + 1;
+    });
+
+    // Sort by count
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const max    = sorted[0][1];
+
+    container.innerHTML = sorted.map(([name, count]) => `
+      <div class="bar-wrap">
+        <div class="bar-label">
+          <span>${name}</span>
+          <span>${count}</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:${(count/max)*100}%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderUsers(users) {
+    const tbody = document.getElementById('usersBody');
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">No users registered yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map((u, i) => `
+      <tr id="userRow_${i}">
+        <td>${i + 1}</td>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td><button class="delete-btn" onclick="deleteUser(${i})">🗑️ Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPredictions(predictions) {
+    const tbody = document.getElementById('predsBody');
+    if (predictions.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">No predictions yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = predictions.map((p, i) => {
+      const bc = p.risk === 'Low' ? 'risk-low' : p.risk === 'Medium' ? 'risk-medium' : 'risk-high';
+      return `<tr>
+        <td>${i + 1}</td>
+        <td>${p.diagnosis}</td>
+        <td>${p.confidence}</td>
+        <td><span class="risk-badge ${bc}">${p.risk}</span></td>
+        <td>${p.date}</td>
+        <td>${p.time}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function deleteUser(index) {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    allUsers.splice(index, 1);
+    renderUsers(allUsers);
+    document.getElementById('totalUsers').textContent = allUsers.length;
+  }
+
+  function searchUsers(query) {
+    const filtered = allUsers.filter(u =>
+      u.name.toLowerCase().includes(query.toLowerCase()) ||
+      u.email.toLowerCase().includes(query.toLowerCase())
+    );
+    renderUsers(filtered);
+  }
+
+  function searchPreds(query) {
+    const filtered = allPredictions.filter(p =>
+      p.diagnosis.toLowerCase().includes(query.toLowerCase())
+    );
+    renderPredictions(filtered);
+  }
+
+  function filterPreds(risk, btn) {
+    currentFilter = risk;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = risk === 'All' ? allPredictions : allPredictions.filter(p => p.risk === risk);
+    renderPredictions(filtered);
+  }
+
+  function exportUsers() {
+    if (allUsers.length === 0) { alert('No users to export!'); return; }
+    let csv = 'Name,Email\n';
+    allUsers.forEach(u => { csv += `${u.name},${u.email}\n`; });
+    downloadCSV(csv, 'users.csv');
+  }
+
+  function exportPredictions() {
+    if (allPredictions.length === 0) { alert('No predictions to export!'); return; }
+    let csv = 'Diagnosis,Confidence,Risk,Date,Time\n';
+    allPredictions.forEach(p => {
+      csv += `${p.diagnosis},${p.confidence},${p.risk},${p.date},${p.time}\n`;
+    });
+    downloadCSV(csv, 'predictions.csv');
+  }
+
+  function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') adminLogin();
+  });
+</script>
+</body>
+</html>

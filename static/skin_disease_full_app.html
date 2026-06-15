@@ -1,0 +1,570 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.page { display: none; }
+.page.active { display: block; }
+.navbar { background: linear-gradient(90deg, #6B7FD7 0%, #9B6BB5 100%); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+.nav-brand { display: flex; align-items: center; gap: 7px; color: #fff; font-size: 14px; font-weight: 500; }
+.nav-right { display: flex; align-items: center; gap: 7px; }
+.nav-welcome { color: #fff; font-size: 13px; display: flex; align-items: center; gap: 5px; margin-right: 4px; }
+.nav-pill { background: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: #333; white-space: nowrap; }
+.nav-pill.outline { background: transparent; border: 1.5px solid rgba(255,255,255,0.8); color: #fff; }
+.page-bg { background: #eeeef4; min-height: 660px; padding: 30px 20px; display: flex; align-items: flex-start; justify-content: center; }
+.card { background: #fff; border-radius: 14px; padding: 24px 28px 28px; width: 100%; max-width: 480px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+.card-head { text-align: center; margin-bottom: 18px; }
+.card-head h2 { font-size: 20px; font-weight: 600; color: #222; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.card-head p { font-size: 13px; color: #999; margin-top: 5px; }
+.upload-box { border: 2px dashed #7B8FE0; border-radius: 10px; background: #f3f4fc; overflow: hidden; cursor: pointer; position: relative; }
+.upload-box input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
+.upload-placeholder { padding: 36px 20px; text-align: center; }
+.upload-placeholder h3 { font-size: 14px; font-weight: 600; color: #222; margin: 10px 0 4px; }
+.upload-placeholder p { font-size: 12px; color: #aaa; }
+.preview-img { width: 100%; max-height: 200px; object-fit: cover; display: none; }
+.analyze-btn { margin-top: 18px; width: 100%; padding: 11px; background: #6B7FD7; border: none; border-radius: 25px; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.loading-txt { display: none; text-align: center; color: #6B7FD7; font-size: 13px; margin-top: 14px; }
+.result-card { background: #fff; border-radius: 14px; padding: 20px 24px; width: 100%; max-width: 480px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); margin-top: 16px; display: none; }
+.result-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #222; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 0; margin-bottom: 14px; }
+.r-label { font-size: 12px; color: #999; margin-bottom: 2px; }
+.r-value { font-size: 15px; font-weight: 600; color: #222; }
+.divider { border: none; border-top: 1px solid #f0f0f0; margin: 12px 0; }
+.risk-badge { display: inline-block; color: #fff; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 6px; }
+.risk-low { background: #27ae60; }
+.risk-medium { background: #e67e22; }
+.risk-high { background: #e74c3c; }
+.desc-label { font-size: 12px; color: #999; margin: 12px 0 4px; }
+.desc-text { font-size: 13px; color: #444; line-height: 1.5; }
+.pdf-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+.pdf-btn { background: #fff; border: 1.5px solid #6B7FD7; border-radius: 20px; color: #6B7FD7; font-size: 12px; padding: 5px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.disclaimer { background: #fffbe6; border: 1px solid #f0d060; border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 12px; color: #7a6000; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.hist-title { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600; color: #222; margin-bottom: 20px; }
+.hist-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { border-bottom: 1px solid #eee; }
+th { font-size: 13px; font-weight: 600; color: #555; padding: 12px 14px; text-align: left; }
+td { font-size: 13px; color: #333; padding: 12px 14px; border-bottom: 1px solid #f5f5f5; }
+tr:last-child td { border-bottom: none; }
+.empty-row td { text-align: center; color: #aaa; font-size: 13px; padding: 24px; }
+.dl-btn { background: #fff; border: 1.5px solid #bbb; border-radius: 20px; color: #444; font-size: 11px; padding: 4px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.about-hero { background: linear-gradient(135deg, #6B7FD7 0%, #9B6BB5 100%); padding: 36px 24px 32px; text-align: center; color: #fff; }
+.about-hero h1 { font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; color: #fff; }
+.about-hero p { font-size: 13px; opacity: 0.85; }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 20px 0; background: #eeeef4; }
+.stat-card { background: #6B7FD7; border-radius: 10px; padding: 16px 10px; text-align: center; }
+.stat-num { font-size: 18px; font-weight: 700; color: #fff; }
+.stat-lbl { font-size: 11px; color: rgba(255,255,255,0.85); margin-top: 4px; }
+.about-content { background: #eeeef4; padding: 16px 20px 30px; }
+.about-card { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.about-card-title { font-size: 15px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+.about-card p { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 10px; }
+.pdf-page { background: #fff; padding: 32px 36px; }
+.pdf-main-title { font-size: 22px; font-weight: 700; color: #222; text-align: center; margin-bottom: 6px; }
+.pdf-hr { border: none; border-top: 2px solid #6B7FD7; margin: 8px 0 22px; }
+.pdf-sec { font-size: 14px; font-weight: 600; color: #5a6fd6; margin-bottom: 10px; }
+.pdf-tbl { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+.pdf-tbl td { padding: 8px 12px; border: 1px solid #ddd; }
+.pdf-tbl td:first-child { background: #f0f0f0; font-weight: 600; color: #333; width: 40%; }
+.pdf-footer-line { border: none; border-top: 1px solid #ddd; margin: 16px 0 10px; }
+.pdf-disclaimer-box { font-size: 11px; color: #666; line-height: 1.6; display: flex; gap: 6px; }
+.pdf-gen { font-size: 11px; color: #999; margin-top: 8px; }
+.back-btn { background: #6B7FD7; border: none; border-radius: 20px; color: #fff; padding: 7px 18px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 14px 20px; }
+.profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #6B7FD7, #9B6BB5); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 32px; color: #fff; font-weight: 700; }
+.profile-field { margin-bottom: 16px; }
+.profile-field label { display: block; font-size: 12px; color: #999; margin-bottom: 5px; font-weight: 500; }
+.profile-field .field-value { font-size: 15px; color: #222; font-weight: 500; padding: 10px 14px; background: #f5f5f5; border-radius: 8px; }
+.profile-input { width: 100%; padding: 10px 14px; border: 1.5px solid #6B7FD7; border-radius: 8px; font-size: 14px; color: #222; outline: none; display: none; }
+.edit-btn { background: #6B7FD7; border: none; border-radius: 20px; color: #fff; padding: 8px 20px; font-size: 13px; cursor: pointer; margin-top: 8px; width: 100%; }
+.save-btn { background: #27ae60; border: none; border-radius: 20px; color: #fff; padding: 8px 20px; font-size: 13px; cursor: pointer; margin-top: 8px; width: 100%; display: none; }
+.profile-msg { font-size: 13px; text-align: center; margin-top: 8px; min-height: 18px; color: #27ae60; }
+</style>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashPage" class="page active">
+  <div class="navbar">
+    <div class="nav-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Skin Disease Prediction
+    </div>
+    <div class="nav-right">
+      <div class="nav-welcome">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span id="navUserName">User</span>
+      </div>
+      <button class="nav-pill" onclick="showPage('aboutPage')">About</button>
+      <button class="nav-pill" onclick="loadHistory(); showPage('historyPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+      </button>
+      <button class="nav-pill" onclick="showPage('profilePage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Profile
+      </button>
+      <button class="nav-pill outline" onclick="handleLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+      </button>
+    </div>
+  </div>
+  <div class="page-bg">
+    <div style="width:100%;max-width:480px;">
+      <div class="card">
+        <div class="card-head">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7FD7" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload Skin Image
+          </h2>
+          <p>Upload a clear image of the skin lesion for analysis</p>
+        </div>
+        <div class="upload-box">
+          <input type="file" id="fileInput" accept="image/*" onchange="previewFile(event)" />
+          <div id="uploadPlaceholder" class="upload-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7B8FE0" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <h3>Click to upload image</h3>
+            <p>Supports JPG, PNG, JPEG</p>
+          </div>
+          <img id="previewImg" class="preview-img" alt="Preview" />
+        </div>
+        <button class="analyze-btn" onclick="analyzeImage()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Analyze Image
+        </button>
+        <div class="loading-txt" id="loadingTxt">⏳ Analyzing image, please wait...</div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7FD7" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Analysis Result
+        </div>
+        <div class="result-grid">
+          <div>
+            <div class="r-label">Diagnosis</div>
+            <div class="r-value" id="rDiag">—</div>
+          </div>
+          <div>
+            <div class="r-label">Confidence</div>
+            <div class="r-value" id="rConf">—</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="r-label">Risk Level</div>
+        <span class="risk-badge" id="rRiskBadge">—</span>
+        <div class="desc-label">About this condition</div>
+        <div class="desc-text" id="rDesc">—</div>
+        <div class="pdf-row">
+          <button class="pdf-btn" onclick="viewPDF()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6B7FD7" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            View PDF Report
+          </button>
+        </div>
+        <div class="disclaimer">
+          <span>⚠️</span>
+          <span>This is an AI-generated result for informational purposes only. Please consult a certified dermatologist for medical advice.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div id="historyPage" class="page">
+  <div class="navbar">
+    <div class="nav-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Skin Disease Prediction
+    </div>
+    <div class="nav-right">
+      <button class="nav-pill" onclick="showPage('dashPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Predict
+      </button>
+      <button class="nav-pill" onclick="showPage('aboutPage')">About</button>
+      <button class="nav-pill" onclick="showPage('profilePage')">Profile</button>
+      <button class="nav-pill outline" onclick="handleLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+      </button>
+    </div>
+  </div>
+  <div class="page-bg" style="display:block; padding:24px 20px;">
+    <div class="hist-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7FD7" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Prediction History
+    </div>
+    <div class="hist-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Diagnosis</th><th>Confidence</th><th>Risk</th><th>Date & Time</th><th>Report</th>
+          </tr>
+        </thead>
+        <tbody id="histBody">
+          <tr class="empty-row"><td colspan="6">No predictions yet. Go analyze an image first!</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="aboutPage" class="page">
+  <div class="navbar">
+    <div class="nav-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Skin Disease Prediction
+    </div>
+    <div class="nav-right">
+      <button class="nav-pill" onclick="showPage('dashPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Predict
+      </button>
+      <button class="nav-pill" onclick="loadHistory(); showPage('historyPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+      </button>
+      <button class="nav-pill" onclick="showPage('profilePage')">Profile</button>
+      <button class="nav-pill outline" onclick="handleLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+      </button>
+    </div>
+  </div>
+  <div class="about-hero">
+    <h1>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Skin Disease Prediction System
+    </h1>
+    <p>AI-powered skin lesion analysis using Deep Learning</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">10,015</div><div class="stat-lbl">Training Images</div></div>
+    <div class="stat-card"><div class="stat-num">7</div><div class="stat-lbl">Disease Classes</div></div>
+    <div class="stat-card"><div class="stat-num">73.42%</div><div class="stat-lbl">Model Accuracy</div></div>
+    <div class="stat-card"><div class="stat-num">CNN</div><div class="stat-lbl">Deep Learning Model</div></div>
+  </div>
+  <div class="about-content">
+    <div class="about-card">
+      <div class="about-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a6fd6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        About This Project
+      </div>
+      <p>This Skin Disease Prediction System is a BE Final Year Project developed to assist in early detection of skin diseases using Artificial Intelligence. The system uses the HAM10000 dataset — a large collection of dermatoscopic images — to train a deep learning model that can classify skin lesions into 7 categories.</p>
+      <p>The project uses a custom Convolutional Neural Network (CNN) trained from scratch for image classification. Additionally, SVM and Random Forest models were trained and compared. The CNN achieved the best validation accuracy of 73.42% on dermoscopic image analysis.</p>
+    </div>
+    <div class="about-card" style="margin-top:14px;">
+      <div class="about-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a6fd6" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Model Comparison
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f5f5f5;">
+            <th style="padding:8px 12px;text-align:left;color:#555;border:1px solid #eee;">Model</th>
+            <th style="padding:8px 12px;text-align:left;color:#555;border:1px solid #eee;">Accuracy</th>
+            <th style="padding:8px 12px;text-align:left;color:#555;border:1px solid #eee;">Used in App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #eee;font-weight:600;color:#6B7FD7;">CNN</td>
+            <td style="padding:8px 12px;border:1px solid #eee;">73.42%</td>
+            <td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">✓ Yes</span></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #eee;">Random Forest</td>
+            <td style="padding:8px 12px;border:1px solid #eee;">73.14%</td>
+            <td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#aaa;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">✗ No</span></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #eee;">SVM</td>
+            <td style="padding:8px 12px;border:1px solid #eee;">66.99%</td>
+            <td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#aaa;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">✗ No</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="about-card" style="margin-top:14px;">
+      <div class="about-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a6fd6" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Disease Classes
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f5f5f5;">
+            <th style="padding:8px 12px;text-align:left;color:#555;border:1px solid #eee;">Disease</th>
+            <th style="padding:8px 12px;text-align:left;color:#555;border:1px solid #eee;">Risk Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Melanoma</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#e74c3c;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">High</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Basal Cell Carcinoma</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#e67e22;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Medium</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Actinic Keratoses</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#e67e22;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Medium</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Benign Keratosis</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Low</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Melanocytic Nevus</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Low</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Dermatofibroma</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Low</span></td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #eee;">Vascular Lesion</td><td style="padding:8px 12px;border:1px solid #eee;"><span style="background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;">Low</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="profilePage" class="page">
+  <div class="navbar">
+    <div class="nav-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Skin Disease Prediction
+    </div>
+    <div class="nav-right">
+      <button class="nav-pill" onclick="showPage('dashPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Predict
+      </button>
+      <button class="nav-pill" onclick="loadHistory(); showPage('historyPage')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+      </button>
+      <button class="nav-pill" onclick="showPage('aboutPage')">About</button>
+      <button class="nav-pill outline" onclick="handleLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+      </button>
+    </div>
+  </div>
+  <div class="page-bg">
+    <div style="width:100%;max-width:480px;">
+      <div class="card">
+        <div class="card-head">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7FD7" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            My Profile
+          </h2>
+        </div>
+        <div class="profile-avatar" id="profileAvatar">?</div>
+        <div class="profile-field">
+          <label>Full Name</label>
+          <div class="field-value" id="profileNameDisplay">—</div>
+          <input type="text" class="profile-input" id="profileNameInput" placeholder="Enter your name" />
+        </div>
+        <div class="profile-field">
+          <label>Email Address</label>
+          <div class="field-value" id="profileEmailDisplay">—</div>
+        </div>
+        <button class="edit-btn" id="editBtn" onclick="enableEdit()"> Edit Name</button>
+        <button class="save-btn" id="saveBtn" onclick="saveName()"> Save Changes</button>
+        <div class="profile-msg" id="profileMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PAGE -->
+<div id="pdfPage" class="page">
+  <div style="background:#eeeef4; padding-bottom:20px;">
+    <button class="back-btn" onclick="showPage('historyPage')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to History
+    </button>
+    <div class="pdf-page">
+      <div class="pdf-main-title">Skin Disease Prediction Report</div>
+      <hr class="pdf-hr" />
+      <div class="pdf-sec">Patient Information</div>
+      <table class="pdf-tbl">
+        <tr><td>Patient Name</td><td id="pdfName">—</td></tr>
+        <tr><td>Email</td><td id="pdfEmail">—</td></tr>
+        <tr><td>Report Date</td><td id="pdfDate">—</td></tr>
+        <tr><td>Report Time</td><td id="pdfTime">—</td></tr>
+      </table>
+      <div class="pdf-sec">Diagnosis Result</div>
+      <table class="pdf-tbl">
+        <tr><td>Diagnosis</td><td id="pdfDiag">—</td></tr>
+        <tr><td>Confidence Score</td><td id="pdfConf">—</td></tr>
+        <tr><td>Risk Level</td><td id="pdfRisk">—</td></tr>
+      </table>
+      <div class="pdf-sec">About This Condition</div>
+      <p style="font-size:13px;color:#444;margin-bottom:20px;line-height:1.7;" id="pdfDesc">—</p>
+      <hr class="pdf-footer-line" />
+      <div class="pdf-disclaimer-box">
+        <span>&#9632;</span>
+        <span><strong>Medical Disclaimer:</strong> This report is generated by an AI system and is intended for informational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Please consult a certified dermatologist.</span>
+      </div>
+      <div class="pdf-gen" id="pdfGen">Generated by Skin Disease Prediction System</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let history = [];
+  let lastResult = null;
+
+  window.onload = function() {
+    const userName  = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userName || !userEmail) {
+      window.location.href = '/';
+      return;
+    }
+    document.getElementById('navUserName').textContent = userName;
+    loadProfile();
+    loadHistory();
+  };
+
+  // Load history from SQLite via Flask
+  async function loadHistory() {
+    const email = localStorage.getItem('userEmail') || '';
+    try {
+      const res  = await fetch(`/history?email=${email}`);
+      const data = await res.json();
+      history = data.map(row => ({
+        name: row.diagnosis,
+        conf: row.confidence,
+        risk: row.risk,
+        desc: row.description,
+        date: row.date,
+        time: row.time
+      }));
+      renderHistory();
+    } catch (err) {
+      console.error('Error loading history:', err);
+    }
+  }
+
+  function loadProfile() {
+    const userName  = localStorage.getItem('userName')  || '';
+    const userEmail = localStorage.getItem('userEmail') || '';
+    document.getElementById('profileNameDisplay').textContent  = userName;
+    document.getElementById('profileEmailDisplay').textContent = userEmail;
+    document.getElementById('profileNameInput').value          = userName;
+    const initials = userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById('profileAvatar').textContent = initials || '?';
+  }
+
+  function enableEdit() {
+    document.getElementById('profileNameDisplay').style.display = 'none';
+    document.getElementById('profileNameInput').style.display   = 'block';
+    document.getElementById('editBtn').style.display            = 'none';
+    document.getElementById('saveBtn').style.display            = 'block';
+    document.getElementById('profileMsg').textContent           = '';
+  }
+
+  function saveName() {
+    const newName = document.getElementById('profileNameInput').value.trim();
+    if (!newName) {
+      document.getElementById('profileMsg').textContent = ' Name cannot be empty!';
+      document.getElementById('profileMsg').style.color = '#e74c3c';
+      return;
+    }
+    localStorage.setItem('userName', newName);
+    document.getElementById('profileNameDisplay').textContent = newName;
+    document.getElementById('navUserName').textContent        = newName;
+    const initials = newName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById('profileAvatar').textContent      = initials;
+    document.getElementById('profileNameDisplay').style.display = 'block';
+    document.getElementById('profileNameInput').style.display   = 'none';
+    document.getElementById('editBtn').style.display            = 'block';
+    document.getElementById('saveBtn').style.display            = 'none';
+    document.getElementById('profileMsg').textContent           = ' Name updated successfully!';
+    document.getElementById('profileMsg').style.color           = '#27ae60';
+  }
+
+  function handleLogout() {
+    localStorage.clear();
+    window.location.href = '/';
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === 'profilePage') loadProfile();
+  }
+
+  function previewFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('previewImg');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      document.getElementById('uploadPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    document.getElementById('resultCard').style.display = 'none';
+  }
+
+  //  Sends email to Flask + saves to SQLite
+  async function analyzeImage() {
+    const file = document.getElementById('fileInput').files[0];
+    if (!file) { alert('Please upload an image first.'); return; }
+    const loading = document.getElementById('loadingTxt');
+    document.getElementById('resultCard').style.display = 'none';
+    loading.style.display = 'block';
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('email', localStorage.getItem('userEmail') || '');
+
+    try {
+      const res  = await fetch('/predict', { method: 'POST', body: formData });
+      const data = await res.json();
+      loading.style.display = 'none';
+      const riskClass = data.risk === 'Low' ? 'risk-badge risk-low' : data.risk === 'Medium' ? 'risk-badge risk-medium' : 'risk-badge risk-high';
+      document.getElementById('rDiag').textContent = data.diagnosis;
+      document.getElementById('rConf').textContent = data.confidence;
+      document.getElementById('rDesc').textContent = data.description;
+      const badge = document.getElementById('rRiskBadge');
+      badge.textContent = data.risk + ' Risk';
+      badge.className   = riskClass;
+      document.getElementById('resultCard').style.display = 'block';
+      lastResult = {
+        name: data.diagnosis,
+        conf: data.confidence,
+        risk: data.risk,
+        desc: data.description,
+        date: data.date,
+        time: data.time
+      };
+      history.unshift(lastResult);
+      renderHistory();
+    } catch (err) {
+      loading.style.display = 'none';
+      alert('Error analyzing image. Make sure Flask server is running.');
+    }
+  }
+
+  function renderHistory() {
+    const tbody = document.getElementById('histBody');
+    if (history.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No predictions yet. Go analyze an image first!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = history.map((h, i) => {
+      const bc = h.risk === 'Low' ? 'risk-low' : h.risk === 'Medium' ? 'risk-medium' : 'risk-high';
+      return `<tr>
+        <td>${i + 1}</td>
+        <td>${h.name}</td>
+        <td>${h.conf}</td>
+        <td><span class="risk-badge ${bc}">${h.risk} Risk</span></td>
+        <td>${h.date}, ${h.time}</td>
+        <td><button class="dl-btn" onclick="openPDF(${i})">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF
+        </button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openPDF(index) {
+    const h         = history[index];
+    const userName  = localStorage.getItem('userName')  || 'Unknown';
+    const userEmail = localStorage.getItem('userEmail') || 'Unknown';
+    document.getElementById('pdfName').textContent  = userName;
+    document.getElementById('pdfEmail').textContent = userEmail;
+    document.getElementById('pdfDiag').textContent  = h.name;
+    document.getElementById('pdfConf').textContent  = h.conf;
+    const riskEl = document.getElementById('pdfRisk');
+    riskEl.textContent      = h.risk;
+    riskEl.style.color      = h.risk === 'Low' ? '#27ae60' : h.risk === 'Medium' ? '#e67e22' : '#e74c3c';
+    riskEl.style.fontWeight = '600';
+    document.getElementById('pdfDesc').textContent = h.desc;
+    document.getElementById('pdfDate').textContent = h.date;
+    document.getElementById('pdfTime').textContent = h.time;
+    document.getElementById('pdfGen').textContent  = 'Generated by Skin Disease Prediction System | ' + h.date;
+    showPage('pdfPage');
+  }
+
+  function viewPDF() {
+    if (lastResult) {
+      openPDF(0);
+    }
+  }
+</script>

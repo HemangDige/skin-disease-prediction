@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skin Disease Prediction</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6B7FD7 0%, #9B6DB5 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .page { display: none; width: 100%; align-items: center; justify-content: center; padding: 2rem; }
+    .page.active { display: flex; }
+    .card { background: #ffffff; border-radius: 12px; width: 100%; max-width: 400px; overflow: hidden; }
+    .card-header { background: linear-gradient(135deg, #6B7FD7 0%, #9B6DB5 100%); padding: 1.5rem; text-align: center; color: #fff; }
+    .card-header h2 { font-size: 20px; font-weight: 500; margin-bottom: 4px; color: #fff; }
+    .card-header p { font-size: 13px; opacity: 0.85; color: #fff; }
+    .card-body { padding: 1.5rem; background: #ffffff; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 13px; font-weight: 500; color: #333333; margin-bottom: 6px; }
+    .input-wrap { display: flex; align-items: center; border: 1.5px solid #cccccc; border-radius: 8px; padding: 0 12px; background: #ffffff; }
+    .input-wrap svg { flex-shrink: 0; opacity: 0.4; }
+    .input-wrap input { border: none; background: #ffffff; padding: 10px 8px; width: 100%; font-size: 14px; color: #333333; outline: none; -webkit-text-fill-color: #333333; }
+    .input-wrap input::placeholder { color: #aaaaaa; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #6B7FD7; color: #ffffff; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 0.5rem; }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .divider { border: none; border-top: 1px solid #eeeeee; margin: 1rem 0; }
+    .switch-text { text-align: center; font-size: 13px; color: #666666; }
+    .switch-text a { color: #6B7FD7; font-weight: 500; cursor: pointer; text-decoration: none; }
+    .switch-text a:hover { text-decoration: underline; }
+    .msg { font-size: 13px; text-align: center; margin-top: 8px; min-height: 18px; }
+    .msg.success { color: #2e7d32; }
+    .msg.error { color: #c62828; }
+  </style>
+</head>
+<body>
+
+  <div id="loginPage" class="page active">
+    <div class="card">
+      <div class="card-header">
+        <div style="font-size:26px; margin-bottom:6px;">&#x1FA7A;</div>
+        <h2>Skin Disease Prediction</h2>
+        <p>Login to your account</p>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+            <input type="email" id="loginEmail" placeholder="Enter your email" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="loginPass" placeholder="Enter your password" />
+          </div>
+        </div>
+        <button class="btn" id="loginBtn" onclick="handleLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Login
+        </button>
+        <div class="msg" id="loginMsg"></div>
+        <hr class="divider" />
+        <p class="switch-text">Don't have an account? <a onclick="showSignup()">Register here</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="signupPage" class="page">
+    <div class="card">
+      <div class="card-header">
+        <div style="font-size:26px; margin-bottom:6px;">&#x1F464;</div>
+        <h2>Create Account</h2>
+        <p>Register to get started</p>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Full Name</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            <input type="text" id="signupName" placeholder="Enter your full name" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+            <input type="email" id="signupEmail" placeholder="Enter your email" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signupPass" placeholder="Create a password" />
+          </div>
+        </div>
+        <button class="btn" id="signupBtn" onclick="handleSignup()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/></svg>
+          Register
+        </button>
+        <div class="msg" id="signupMsg"></div>
+        <hr class="divider" />
+        <p class="switch-text">Already have an account? <a onclick="showLogin()">Login here</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showSignup() {
+      document.getElementById('loginPage').classList.remove('active');
+      document.getElementById('signupPage').classList.add('active');
+      document.getElementById('signupMsg').textContent = '';
+    }
+
+    function showLogin() {
+      document.getElementById('signupPage').classList.remove('active');
+      document.getElementById('loginPage').classList.add('active');
+      document.getElementById('loginMsg').textContent = '';
+    }
+
+    async function handleSignup() {
+      const name  = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const pass  = document.getElementById('signupPass').value;
+      const msg   = document.getElementById('signupMsg');
+      const btn   = document.getElementById('signupBtn');
+
+      if (!name || !email || !pass) {
+        msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
+      }
+      if (!email.includes('@')) {
+        msg.className = 'msg error'; msg.textContent = 'Enter a valid email address.'; return;
+      }
+      if (pass.length < 6) {
+        msg.className = 'msg error'; msg.textContent = 'Password must be at least 6 characters.'; return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Registering...';
+
+      try {
+        const res  = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password: pass })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.className = 'msg success';
+          msg.textContent = 'Account created! Redirecting to login...';
+          setTimeout(() => { showLogin(); }, 1500);
+        } else {
+          msg.className = 'msg error'; msg.textContent = data.message;
+        }
+      } catch (err) {
+        msg.className = 'msg error'; msg.textContent = 'Server error. Is Flask running?';
+      }
+
+      btn.disabled = false; btn.textContent = 'Register';
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass  = document.getElementById('loginPass').value;
+      const msg   = document.getElementById('loginMsg');
+      const btn   = document.getElementById('loginBtn');
+
+      if (!email || !pass) {
+        msg.className = 'msg error'; msg.textContent = 'Please enter email and password.'; return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Logging in...';
+
+      try {
+        const res  = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // FIXED: clear old user data before saving new user
+          localStorage.clear();
+          localStorage.setItem('userName',  data.name);
+          localStorage.setItem('userEmail', email);
+          msg.className = 'msg success';
+          msg.textContent = 'Login successful! Redirecting...';
+          setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+        } else {
+          msg.className = 'msg error'; msg.textContent = data.message;
+        }
+      } catch (err) {
+        msg.className = 'msg error'; msg.textContent = 'Server error. Is Flask running?';
+      }
+
+      btn.disabled = false; btn.textContent = 'Login';
+    }
+  </script>
+</body>
+</html>

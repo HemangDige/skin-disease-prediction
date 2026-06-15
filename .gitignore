@@ -1,0 +1,27 @@
+# Virtual environment
+skin_env/
+
+# Dataset (too large for GitHub)
+HAM10000_images_part_1/
+HAM10000_images_part_2/
+HAM10000_metadata.csv
+hmnist_8_8_L.csv
+hmnist_8_8_RGB.csv
+hmnist_28_28_L.csv
+hmnist_28_28_RGB.csv
+
+# Model files (large)
+models/
+
+# Database
+database.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
